@@ -87,9 +87,10 @@ function checkyaml() {
 }
 
 setup_paths
+cd $path_to_toplevel
 
 header "*** Checking puppet code for style ***"
-for file in $(find $path_to_toplevel -not -path "./modules/*" -name "*.pp"); do
+for file in $(find . -not -path "./modules/*" -name "*.pp"); do
   # Only check new/modified files that end in *.pp extension
   if [[ -f $file && $file == *.pp ]]; then
     # allow user-defined over-ride of linting rules with .puppet-lint.rc
@@ -115,7 +116,7 @@ for file in $(find $path_to_toplevel -not -path "./modules/*" -name "*.pp"); do
 done
 
 header "*** Checking puppet manifest syntax ***"
-for file in $(find $path_to_toplevel -not -path "./modules/*" -name "*.pp"); do
+for file in $(find . -not -path "./modules/*" -name "*.pp"); do
   if [[ -f $file && $file == *.pp ]]; then
     $path_to_puppet parser validate $file
     if [[ $? -ne 0 ]]; then
@@ -129,7 +130,7 @@ done
 
 # FIXME: compiling catalog only works on master
 #  echo "*** Checking if the catalog compiles ***"
-#  $path_to_puppet apply --noop $path_to_toplevel/manifests/site.pp
+#  $path_to_puppet apply --noop ./manifests/site.pp
 #  if [[ $? -ne 0 ]]; then
 #    fail "FAILED: "; echo "catalog compilation"
 #    syntax_is_bad=1
@@ -138,7 +139,7 @@ done
 #  fi
 
 header "*** Checking puppet template(epp) syntax ***"
-for file in $(find $path_to_toplevel -not -path "./modules/*" -name "*.epp"); do
+for file in $(find . -not -path "./modules/*" -name "*.epp"); do
   if [[ -f $file && $file == *.epp ]]; then
     $path_to_puppet epp validate $file
     if [[ $? -ne 0 ]]; then
@@ -151,7 +152,7 @@ for file in $(find $path_to_toplevel -not -path "./modules/*" -name "*.epp"); do
 done
 
 header "*** Checking ruby template(erb) syntax ***"
-for file in $(find $path_to_toplevel -not -path "./modules/*" -name "*.erb"); do
+for file in $(find . -not -path "./modules/*" -name "*.erb"); do
   if [[ -f $file ]]; then
     $path_to_erb -P -x -T '-' $file | ruby -c | grep -v '^Syntax OK'
     if [[ "${PIPESTATUS[0]}" -ne 0 ]]; then
@@ -164,7 +165,7 @@ for file in $(find $path_to_toplevel -not -path "./modules/*" -name "*.erb"); do
 done
 
 header "*** Checking ruby syntax ***"
-for file in $(find $path_to_toplevel -not -path "./modules/*" -name "*.rb"); do
+for file in $(find . -not -path "./modules/*" -name "*.rb"); do
   if [[ -f $file ]]; then
     $path_to_ruby -c $file | grep -v '^Syntax OK'
     if [[ "${PIPESTATUS[0]}" -ne 0 ]]; then
@@ -177,7 +178,7 @@ for file in $(find $path_to_toplevel -not -path "./modules/*" -name "*.rb"); do
 done
 
 header "*** Checking YAML syntax ***"
-for file in $(find $path_to_toplevel -not -path "./modules/*" -name "*.yaml"); do
+for file in $(find . -not -path "./modules/*" -name "*.yaml"); do
   if [[ -f $file ]]; then
     checkyaml $file
     if [[ $? -ne 0 ]]; then
